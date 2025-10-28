@@ -11,10 +11,41 @@ import Text from '@tiptap/extension-text'
 import Document from '@tiptap/extension-document'
 import Gapcursor from '@tiptap/extension-gapcursor'
 import Paragraph from '@tiptap/extension-paragraph'
-import Image from '@tiptap/extension-image'
+import ImageResize from 'tiptap-extension-resize-image';
+import Underline from '@tiptap/extension-underline'
+
+import FontFamily from '@tiptap/extension-font-family'
+
+import { useEditorStore } from '@/store/use-editor-store'
+import TextStyle from '@tiptap/extension-text-style'
 
 const Editor = () => {
+    const { setEditor } = useEditorStore();
     const editor = useEditor({
+        onCreate({ editor }) {
+            setEditor(editor);
+        },
+        onDestroy() {
+            setEditor(null);
+        },
+        onUpdate({ editor }) {
+            setEditor(editor);
+        },
+        onSelectionUpdate({ editor }) {
+            setEditor(editor);
+        },
+        onTransaction({ editor }) {
+            setEditor(editor);
+        },
+        onFocus({ editor }) {
+            setEditor(editor);
+        },
+        onBlur({ editor }) {
+            setEditor(editor);
+        },
+        onContentError({ editor }) {
+            setEditor(editor);
+        },
         extensions: [StarterKit, TaskList, TaskItem.configure({
             nested: true,
         }), Document,
@@ -27,12 +58,11 @@ const Editor = () => {
             TableRow,
             TableHeader,
             TableCell,
-            Image],
-        content: `
-          <p>This is a basic example of implementing images. Drag to re-order.</p>
-        <img src="https://placehold.co/800x400" />
-        <img src="https://placehold.co/800x400/6A00F5/white" />
-      `,
+            ImageResize,
+            Underline,
+            TextStyle,
+            FontFamily],
+        content: ` <img src="https://placehold.co/800x400" />`,
         editorProps: {
             attributes: {
                 style: 'padding-left: 56px;padding-right:56px;',

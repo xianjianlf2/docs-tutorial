@@ -236,4 +236,15 @@ body {
   h6 {
     font-size: 1rem;
   }
+  /* image styles */
+  img {
+    display: block;
+    height: auto;
+    margin: 1.5rem 0;
+    max-width: 100%;
+
+    &.ProseMirror-selectednode {
+      outline: 3px solid var(--primary);
+    }
+  }
 }
