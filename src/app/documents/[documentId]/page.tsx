@@ -12,7 +12,9 @@ const DocumentsIdPage = async ({ params }: DocumentsIdPageProps) => {
     const documentId = awaitParams.documentId;
     return (
         <div className="min-h-screen bg-[#fafbfd]">
-            <Toolbar />
+            <div className="sticky top-0 z-50 bg-[#fafbfd] pt-2">
+                <Toolbar />
+            </div>
             <Editor />
         </div>
     )

@@ -13,11 +13,14 @@ import Gapcursor from '@tiptap/extension-gapcursor'
 import Paragraph from '@tiptap/extension-paragraph'
 import ImageResize from 'tiptap-extension-resize-image';
 import Underline from '@tiptap/extension-underline'
-
 import FontFamily from '@tiptap/extension-font-family'
-
+import { Color } from '@tiptap/extension-color'
+import Highlight from '@tiptap/extension-highlight'
 import { useEditorStore } from '@/store/use-editor-store'
 import TextStyle from '@tiptap/extension-text-style'
+import Link from '@tiptap/extension-link'
+import TextAlign from '@tiptap/extension-text-align'
+import { FontSizeExtension } from '@/extensions/font-size'
 
 const Editor = () => {
     const { setEditor } = useEditorStore();
@@ -61,8 +64,27 @@ const Editor = () => {
             ImageResize,
             Underline,
             TextStyle,
-            FontFamily],
-        content: ` <img src="https://placehold.co/800x400" />`,
+            FontFamily,
+            Color,
+            Highlight.configure({
+                multicolor: true,
+            }),
+            Link.configure({
+                openOnClick: false,
+                defaultProtocol: 'https',
+                autolink: true,
+            }),
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            FontSizeExtension
+        ],
+        content: `  <p>
+          Wow, this editor has support for links to the whole <a href="https://en.wikipedia.org/wiki/World_Wide_Web">world wide web</a>. We tested a lot of URLs and I think you can add *every URL* you want. Isn’t that cool? Let’s try <a href="https://statamic.com/">another one!</a> Yep, seems to work.
+        </p>
+        <p>
+          By default every link will get a <code>rel="noopener noreferrer nofollow"</code> attribute. It’s configurable though.
+        </p>`,
         editorProps: {
             attributes: {
                 style: 'padding-left: 56px;padding-right:56px;',
