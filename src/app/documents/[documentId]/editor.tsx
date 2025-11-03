@@ -21,6 +21,7 @@ import TextStyle from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
 import { FontSizeExtension } from '@/extensions/font-size'
+import { LineHeightExtension } from '@/extensions/line-height'
 
 const Editor = () => {
     const { setEditor } = useEditorStore();
@@ -77,7 +78,11 @@ const Editor = () => {
             TextAlign.configure({
                 types: ['heading', 'paragraph'],
             }),
-            FontSizeExtension
+            FontSizeExtension,
+            LineHeightExtension.configure({
+                types: ['heading', 'paragraph'],
+                defaultLineHeight: 'normal',
+            })
         ],
         content: `  <p>
           Wow, this editor has support for links to the whole <a href="https://en.wikipedia.org/wiki/World_Wide_Web">world wide web</a>. We tested a lot of URLs and I think you can add *every URL* you want. Isn’t that cool? Let’s try <a href="https://statamic.com/">another one!</a> Yep, seems to work.

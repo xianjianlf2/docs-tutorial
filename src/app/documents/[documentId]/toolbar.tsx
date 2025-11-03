@@ -14,6 +14,7 @@ import LinkButton from "./toolbar/LinkButton";
 import TextColorButtons from "./toolbar/TextColorButtons";
 import { ListTodoIcon, RemoveFormattingIcon, MessageSquareIcon, UndoIcon, RedoIcon, PrinterIcon, SpellCheckIcon, BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { useEditorStore } from "@/store/use-editor-store";
+import LineHeightButton from "./toolbar/LineHeightButton";
 
 const Toolbar = () => {
     const [isMounted, setIsMounted] = useState(false);
@@ -61,6 +62,9 @@ const Toolbar = () => {
             <Separator orientation="vertical" className="h-6 bg-neutral-300 w-px mx-0.5" />
             {/* Font Size */}
             <FontSizeButton />
+            <Separator orientation="vertical" className="h-6 bg-neutral-300 w-px mx-0.5" />
+            {/* Line Height */}
+            <LineHeightButton />
             <Separator orientation="vertical" className="h-6 bg-neutral-300 w-px mx-0.5" />
             {/* Lists */}
             <div className="flex items-center gap-x-0.5">
