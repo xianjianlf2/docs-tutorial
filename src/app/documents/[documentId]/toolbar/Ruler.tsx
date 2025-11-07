@@ -184,11 +184,11 @@ const Ruler = () => {
                 }
             }
         };
-        
+
         // 延迟查找，确保编辑器已渲染
         const timeoutId = setTimeout(findEditorContainer, 100);
         findEditorContainer(); // 立即尝试一次
-        
+
         // 监听 DOM 变化，如果编辑器还没加载完成
         const observer = new MutationObserver(() => {
             if (!editorContainerRef.current) {
@@ -196,7 +196,7 @@ const Ruler = () => {
             }
         });
         observer.observe(document.body, { childList: true, subtree: true });
-        
+
         return () => {
             clearTimeout(timeoutId);
             observer.disconnect();
@@ -220,7 +220,7 @@ const Ruler = () => {
 
         return createPortal(
             <div
-                className="fixed pointer-events-none z-50"
+                className="fixed pointer-events-none z-50 print:hidden"
                 style={{
                     left: `${dragLinePosition}px`,
                     top: `${lineTop}px`,
@@ -235,7 +235,7 @@ const Ruler = () => {
 
     return (
         <>
-            <div ref={rulerRef} className="relative w-full h-6 bg-neutral-100 mb-2">
+            <div ref={rulerRef} className="relative w-full h-6 bg-neutral-100 mb-2 print:hidden">
                 <div
                     id="ruler-container"
                     className="relative w-full h-full mx-auto"
