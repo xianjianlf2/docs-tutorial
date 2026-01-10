@@ -9,8 +9,7 @@ interface DocumentsIdPageProps {
 
 
 const DocumentsIdPage = async ({ params }: DocumentsIdPageProps) => {
-    const awaitParams = await params;
-    const documentId = awaitParams.documentId;
+    await params; // params 将用于未来的文档加载功能
     return (
         <div className="min-h-screen bg-[#fafbfd]">
             <div className="sticky top-0 z-50 bg-[#fafbfd] pt-2">

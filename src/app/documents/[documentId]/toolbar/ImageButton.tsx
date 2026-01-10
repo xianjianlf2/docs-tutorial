@@ -13,10 +13,12 @@ const ImageButton = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
     const onChange = (url: string) => {
-        editor?.chain().focus().setImage({ src: url }).run();
+        if (!editor) return;
+        editor.chain().focus().setImage({ src: url }).run();
         setImageUrl('');
         setIsDialogOpen(false);
     }
+    
     const onUpload = () => {
         const input = document.createElement('input');
         input.type = 'file';
@@ -30,18 +32,21 @@ const ImageButton = () => {
         }
         input.click();
     }
+    
     const handleImageUrlSubmit = () => {
         if (imageUrl.trim()) {
             onChange(imageUrl);
-            setIsDialogOpen(false);
-            setImageUrl('');
         }
     }
+    
     return (
         <>
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <button className="h-7 min-w-7 shrink-0 flex items-center justify-between rounded-sm hover:bg-neutral-200/80 px-2 text-sm">
+                    <button 
+                        className="h-7 min-w-7 shrink-0 flex items-center justify-between rounded-sm hover:bg-neutral-200/80 px-2 text-sm"
+                        aria-label="Insert image"
+                    >
                         <ImageIcon className="size-4" />
                     </button>
                 </DropdownMenuTrigger>
@@ -69,7 +74,10 @@ const ImageButton = () => {
                         <DialogHeader>
                             <DialogTitle className="text-lg font-semibold mb-4">Insert Image URL</DialogTitle>
                         </DialogHeader>
-                        <Input placeholder="Insert Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
+                        <Input 
+                            placeholder="Insert Image URL" 
+                            value={imageUrl} 
+                            onChange={(e) => setImageUrl(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleImageUrlSubmit();
@@ -87,4 +95,3 @@ const ImageButton = () => {
 }
 
 export default ImageButton;
-

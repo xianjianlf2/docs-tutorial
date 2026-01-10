@@ -11,30 +11,36 @@ const commonFontSizes = [12, 14, 16, 18, 20, 24, 32];
 const FontSizeButton = () => {
     const { editor } = useEditorStore();
     const fontSizeRaw = editor?.getAttributes('textStyle').fontSize;
+    
     let currentFontSize = '16';
     if (typeof fontSizeRaw === 'string' && fontSizeRaw.endsWith('px')) {
         currentFontSize = fontSizeRaw.replace('px', '');
     } else if (!!fontSizeRaw && typeof fontSizeRaw === 'number') {
         currentFontSize = fontSizeRaw.toString();
     }
+    
     const [inputValue, setInputValue] = useState(currentFontSize);
 
     useEffect(() => {
         setInputValue(currentFontSize)
     }, [currentFontSize])
+    
     // 更新字号逻辑
     const updateFontSize = (newSize: string) => {
-        const size = parseInt(newSize)
-        if (!isNaN(size) && size > 0) {
-            editor?.chain().focus().setFontSize(`${size}px`).run()
+        const size = parseInt(newSize);
+        if (!isNaN(size) && size > 0 && editor) {
+            editor.chain().focus().setFontSize(`${size}px`).run();
         }
     }
+    
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value)
     }
+    
     const handleInputBlur = () => {
         updateFontSize(inputValue)
     }
+    
     const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault()
@@ -42,20 +48,24 @@ const FontSizeButton = () => {
             editor?.commands.focus()
         }
     }
+    
     // 左右按钮逻辑
     const incrementFontSize = () => {
-        const size = parseInt(currentFontSize) + 1
+        const size = parseInt(currentFontSize) + 1;
         updateFontSize(size.toString())
     }
+    
     const decrementFontSize = () => {
-        const size = parseInt(currentFontSize) - 1
+        const size = Math.max(1, parseInt(currentFontSize) - 1);
         updateFontSize(size.toString())
     }
+    
     return (
         <div className="flex items-center gap-0.5">
             <button
                 onClick={decrementFontSize}
                 className="h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5"
+                aria-label="Decrease font size"
             >
                 <MinusIcon className="size-4" />
             </button>
@@ -96,6 +106,7 @@ const FontSizeButton = () => {
             <button
                 onClick={incrementFontSize}
                 className="h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5"
+                aria-label="Increase font size"
             >
                 <PlusIcon className="size-4" />
             </button>
@@ -104,4 +115,3 @@ const FontSizeButton = () => {
 }
 
 export default FontSizeButton;
-
