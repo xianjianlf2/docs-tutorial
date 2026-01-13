@@ -29,15 +29,17 @@ export const DocumentRow = ({ document }: DocumentRowProps) => {
 
   return (
     <TableRow 
-      className="cursor-pointer" 
+      className="cursor-pointer border-none hover:bg-[#f1f3f4] transition-colors" 
       key={document._id}
       onClick={handleRowClick}
     >
-      <TableCell className="w-[50px]">
-        <SiGoogledocs className="size-6 fill-blue-500" />
+      <TableCell className="w-[50px] py-3 px-4">
+        <SiGoogledocs className="size-6 fill-[#1a73e8]" />
       </TableCell>
-      <TableCell>{document.title}</TableCell>
-      <TableCell className="flex items-center gap-2">
+      <TableCell className="py-3 px-4 text-sm font-normal">
+        {document.title}
+      </TableCell>
+      <TableCell className="py-3 px-4 flex items-center gap-2 text-sm text-[#5f6368]">
         {document.organizationId ? (
           <Building2Icon className="size-4" />
         ) : (
@@ -45,10 +47,10 @@ export const DocumentRow = ({ document }: DocumentRowProps) => {
         )}
         {document.organizationId ? "Organization" : "Personal"}
       </TableCell>
-      <TableCell className="text-muted-foreground hidden md:table-cell">
+      <TableCell className="py-3 px-4 text-sm text-[#5f6368] hidden md:table-cell">
         {format(new Date(document._creationTime), "MMM dd, yyyy")}
       </TableCell>
-      <TableCell className="ml-auto flex justify-end">
+      <TableCell className="py-3 px-4 ml-auto flex justify-end">
         <DocumentMenu
           documentId={document._id}
           title={document.title}
