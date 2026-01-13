@@ -1,21 +1,38 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import {
-    Building2Icon,
-    CircleUserIcon,
-    MoreVertical
-} from "lucide-react";
+import { Building2Icon, CircleUserIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { SiGoogledocs } from "react-icons/si";
 import { Doc } from "../../../convex/_generated/dataModel";
+import { DocumentMenu } from "./document-menu";
 
 interface DocumentRowProps {
   document: Doc<"documents">;
 }
 
 export const DocumentRow = ({ document }: DocumentRowProps) => {
+  const router = useRouter();
+
+  const onNewTabClick = (id: string) => {
+    window.open(`/documents/${id}`, "_blank");
+  };
+
+  const handleRowClick = (e: React.MouseEvent) => {
+    // 如果点击的是菜单按钮，不触发行跳转
+    if ((e.target as HTMLElement).closest('[role="menuitem"], button')) {
+      return;
+    }
+    router.push(`/documents/${document._id}`);
+  };
+
   return (
-    <TableRow className="cursor-pointer" key={document._id}>
+    <TableRow 
+      className="cursor-pointer" 
+      key={document._id}
+      onClick={handleRowClick}
+    >
       <TableCell className="w-[50px]">
         <SiGoogledocs className="size-6 fill-blue-500" />
       </TableCell>
@@ -32,9 +49,11 @@ export const DocumentRow = ({ document }: DocumentRowProps) => {
         {format(new Date(document._creationTime), "MMM dd, yyyy")}
       </TableCell>
       <TableCell className="ml-auto flex justify-end">
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <MoreVertical className="size-4" />
-        </Button>
+        <DocumentMenu
+          documentId={document._id}
+          title={document.title}
+          onNewTab={onNewTabClick}
+        />
       </TableCell>
     </TableRow>
   );

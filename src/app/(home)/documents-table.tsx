@@ -1,10 +1,11 @@
+import { Button } from "@/components/ui/button";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { PaginationStatus } from "convex/react";
 import { LoaderIcon } from "lucide-react";
@@ -58,6 +59,16 @@ export const DocumentsTable = ({
             </TableBody>
           )}
         </Table>
+      )}
+      {status === "CanLoadMore" && (
+        <div className="flex justify-center">
+          <Button onClick={() => loadMore(10)}>Load More</Button>
+        </div>
+      )}
+      {status === "Exhausted" && (
+        <div className="flex justify-center">
+          <Button onClick={() => loadMore(10)}>No More</Button>
+        </div>
       )}
     </div>
   );
