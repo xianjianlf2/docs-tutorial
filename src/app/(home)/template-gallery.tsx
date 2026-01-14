@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
 
 export const TemplateGallery = () => {
@@ -23,7 +24,12 @@ export const TemplateGallery = () => {
     setIsCreating(true);
     createDocument({ title, initialContent })
       .then((documentId) => {
+        toast.success("Document created successfully");
         router.push(`/documents/${documentId}`);
+      })
+      .catch((error) => {
+        toast.error("Failed to create document");
+        console.error("Error creating document:", error);
       })
       .finally(() => {
         setIsCreating(false);

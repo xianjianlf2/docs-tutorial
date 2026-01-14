@@ -1,12 +1,13 @@
 'use client';
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from "@/components/ui/menubar";
+import { TablePicker } from "@/components/ui/table-picker";
+import { useEditorStore } from "@/store/use-editor-store";
+import { OrganizationSwitcher, UserButton } from "@clerk/clerk-react";
+import { Bold, FileCode, FileEdit, FileIcon, FileJson, FileText, FileType, FolderOpen, Italic, Printer, Redo, RemoveFormatting, Save, SaveAll, Strikethrough, Table, Trash2, Underline, Undo } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { DocumentInput } from "./document-input";
-import { Menubar, MenubarContent, MenubarItem, MenubarTrigger, MenubarMenu, MenubarSeparator, MenubarSub, MenubarSubTrigger, MenubarSubContent, MenubarShortcut } from "@/components/ui/menubar";
-import { FileIcon, FolderOpen, Save, SaveAll, FileEdit, Printer, Trash2, Undo, Redo, FileJson, FileType, FileText, FileCode, Table, Bold, Italic, Underline, Strikethrough, RemoveFormatting } from "lucide-react";
-import { useEditorStore } from "@/store/use-editor-store";
-import { TablePicker } from "@/components/ui/table-picker";
 
 
 type NavbarProps = {
@@ -370,6 +371,15 @@ export default function Navbar({
                     </div>
                 </div>
             </div>
+            <div className="flex items-center gap-3 pl-6">
+                <OrganizationSwitcher
+                    afterCreateOrganizationUrl="/"
+                    afterLeaveOrganizationUrl="/"
+                    afterSelectOrganizationUrl="/"
+                    afterSelectPersonalUrl="/"
+                />
+            </div>
+            <UserButton />
         </nav>
     )
 }

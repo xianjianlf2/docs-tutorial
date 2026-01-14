@@ -12,13 +12,17 @@ export const create = mutation({
     if (!user) {
       throw new ConvexError("Unauthorized");
     }
+    console.log(user);
+    const organizationId = user.organization_id as string | undefined;
+    console.log(organizationId);
     return await ctx.db.insert("documents", {
       title: args.title ?? "Untitled Document",
       initialContent: args.initialContent,
       ownerId: user.subject,
+      organizationId: organizationId,
     });
   },
-});
+}); 
 
 export const get = query({
   args: {
@@ -30,17 +34,31 @@ export const get = query({
     if (!user) {
       throw new ConvexError("Unauthorized");
     }
+
+    const organizationId = user.organization_id as string | undefined;
+    const queryBuilder = ctx.db.query("documents");
+
+    // 如果有搜索词，使用搜索索引
     if (args.search) {
-      return await ctx.db
-        .query("documents")
-        .withSearchIndex("search_title", (q) =>
-          q.search("title", args.search!).eq("ownerId", user.subject)
-        )
+      return await queryBuilder
+        .withSearchIndex("search_title", (q) => {
+          const searchQuery = q.search("title", args.search!);
+          return organizationId
+            ? searchQuery.eq("organizationId", organizationId)
+            : searchQuery.eq("ownerId", user.subject);
+        })
         .paginate(args.paginationOpts);
     }
-    return await ctx.db
-      .query("documents")
-      .withIndex("by_owner_id", (q) => q.eq("ownerId", user.subject))
+
+    // 没有搜索词时，使用普通索引
+    return await queryBuilder
+      .withIndex(
+        organizationId ? "by_organization_id" : "by_owner_id",
+        (q) =>
+          organizationId
+            ? q.eq("organizationId", organizationId)
+            : q.eq("ownerId", user.subject)
+      )
       .paginate(args.paginationOpts);
   },
 });
@@ -58,7 +76,14 @@ export const removeById = mutation({
     if (!document) {
       throw new ConvexError("Document not found");
     }
-    if (document.ownerId !== user.subject) {
+    const organizationId = user.organization_id as string | undefined;
+    // 检查权限：要么是文档所有者，要么在同一个组织内
+    const isOwner = document.ownerId === user.subject;
+    const isInSameOrganization =
+      organizationId &&
+      document.organizationId &&
+      document.organizationId === organizationId;
+    if (!isOwner && !isInSameOrganization) {
       throw new ConvexError("Unauthorized");
     }
     return await ctx.db.delete(args.id);
@@ -80,7 +105,14 @@ export const updateById = mutation({
     if (!document) {
       throw new ConvexError("Document not found");
     }
-    if (document.ownerId !== user.subject) {
+    const organizationId = user.organization_id as string | undefined;
+    // 检查权限：要么是文档所有者，要么在同一个组织内
+    const isOwner = document.ownerId === user.subject;
+    const isInSameOrganization =
+      organizationId &&
+      document.organizationId &&
+      document.organizationId === organizationId;
+    if (!isOwner && !isInSameOrganization) {
       throw new ConvexError("Unauthorized");
     }
     return await ctx.db.patch(args.id, {
