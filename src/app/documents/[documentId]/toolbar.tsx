@@ -1,20 +1,20 @@
 'use client'
 
 
-import { Separator } from "@radix-ui/react-separator";
-import { useEffect, useState } from "react";
-import ToolbarButtons from "./toolbar/ToolbarButtons";
-import HeadingLevelButtons from "./toolbar/HeadingLevelButtons";
-import FontFamilyButtons from "./toolbar/FontFamilyButtons";
-import AlignButton from "./toolbar/AlignButton";
-import ListButton from "./toolbar/ListButton";
-import FontSizeButton from "./toolbar/FontSizeButton";
-import ImageButton from "./toolbar/ImageButton";
-import LinkButton from "./toolbar/LinkButton";
-import TextColorButtons from "./toolbar/TextColorButtons";
-import { ListTodoIcon, RemoveFormattingIcon, MessageSquareIcon, UndoIcon, RedoIcon, PrinterIcon, SpellCheckIcon, BoldIcon, ItalicIcon, UnderlineIcon } from "lucide-react";
 import { useEditorStore } from "@/store/use-editor-store";
+import { Separator } from "@radix-ui/react-separator";
+import { BoldIcon, ItalicIcon, ListTodoIcon, MessageSquareIcon, PrinterIcon, RedoIcon, RemoveFormattingIcon, SpellCheckIcon, UnderlineIcon, UndoIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import AlignButton from "./toolbar/AlignButton";
+import FontFamilyButtons from "./toolbar/FontFamilyButtons";
+import FontSizeButton from "./toolbar/FontSizeButton";
+import HeadingLevelButtons from "./toolbar/HeadingLevelButtons";
+import ImageButton from "./toolbar/ImageButton";
 import LineHeightButton from "./toolbar/LineHeightButton";
+import LinkButton from "./toolbar/LinkButton";
+import ListButton from "./toolbar/ListButton";
+import TextColorButtons from "./toolbar/TextColorButtons";
+import ToolbarButtons from "./toolbar/ToolbarButtons";
 
 const Toolbar = () => {
     const [isMounted, setIsMounted] = useState(false);
@@ -81,7 +81,13 @@ const Toolbar = () => {
             {/* Additional actions */}
             <div className="flex items-center gap-x-0.5">
                 <ToolbarButtons icon={RemoveFormattingIcon} onClick={() => editor?.chain().focus().unsetAllMarks().run()} isActive={false}/>
-                <ToolbarButtons icon={MessageSquareIcon} onClick={() => console.log("comment")} isActive={false}/>
+                <ToolbarButtons 
+                    icon={MessageSquareIcon} 
+                    onClick={() => {
+                       editor?.chain().focus().addPendingComment().run();
+                    }} 
+                    isActive={editor?.isActive('liveblocksCommentMark') ?? false}
+                />
             </div>
         </div>
     )

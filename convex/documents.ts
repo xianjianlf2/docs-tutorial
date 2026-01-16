@@ -12,9 +12,7 @@ export const create = mutation({
     if (!user) {
       throw new ConvexError("Unauthorized");
     }
-    console.log(user);
     const organizationId = user.organization_id as string | undefined;
-    console.log(organizationId);
     return await ctx.db.insert("documents", {
       title: args.title ?? "Untitled Document",
       initialContent: args.initialContent,
@@ -22,7 +20,7 @@ export const create = mutation({
       organizationId: organizationId,
     });
   },
-}); 
+});
 
 export const get = query({
   args: {
@@ -52,12 +50,10 @@ export const get = query({
 
     // 没有搜索词时，使用普通索引
     return await queryBuilder
-      .withIndex(
-        organizationId ? "by_organization_id" : "by_owner_id",
-        (q) =>
-          organizationId
-            ? q.eq("organizationId", organizationId)
-            : q.eq("ownerId", user.subject)
+      .withIndex(organizationId ? "by_organization_id" : "by_owner_id", (q) =>
+        organizationId
+          ? q.eq("organizationId", organizationId)
+          : q.eq("ownerId", user.subject)
       )
       .paginate(args.paginationOpts);
   },
@@ -119,5 +115,16 @@ export const updateById = mutation({
       title: args.title,
       initialContent: args.initialContent,
     });
+  },
+});
+
+export const getById = query({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, { id }) => {
+    const document = await ctx.db.get(id);
+
+    return document;
   },
 });
