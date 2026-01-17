@@ -1,19 +1,71 @@
 "use client";
 
+import { FullscreenLoader } from "@/components/fullscreen-loader";
 import {
   ClientSideSuspense,
   LiveblocksProvider,
   RoomProvider,
 } from "@liveblocks/react/suspense";
 import { useParams } from "next/navigation";
-import { ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { getDocumentsInfoById, getUsers } from "./actions";
+import { Id } from "../../../../convex/_generated/dataModel";
+
+type User = { id: string; name: string; avatar: string };
 
 export function Room({ children }: { children: ReactNode }) {
   const { documentId } = useParams();
+
+  const [users, setUsers] = useState<User[]>([]);
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      const users = await getUsers();
+      setUsers(users);
+    } catch {
+      toast.error("Fail to fetch users", {
+        description: "Please try again later",
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
   return (
-    <LiveblocksProvider authEndpoint="/api/liveblocks-auth" throttle={16}>
+    <LiveblocksProvider
+      authEndpoint={`/api/liveblocks-auth?roomId=${documentId}`}
+      throttle={16}
+      resolveUsers={({ userIds }) => {
+        return userIds
+          .map((userId) => users.find((user) => user.id === userId))
+          .filter((user): user is User => user !== undefined);
+      }}
+      resolveMentionSuggestions={({ text }) => {
+        let filteredUsers = users;
+
+        if (text) {
+          filteredUsers = users.filter((user) =>
+            user.name.toLowerCase().includes(text.toLowerCase())
+          );
+        }
+        return filteredUsers.map((user) => user.id);
+      }}
+      resolveRoomsInfo={async ({ roomIds }) => {
+        const documents = await getDocumentsInfoById(
+          roomIds as Id<"documents">[]
+        );
+        return documents.map((document) => ({
+          id: document.id,
+          name: document.name,
+        }));
+      }}
+    >
       <RoomProvider id={documentId as string}>
-        <ClientSideSuspense fallback={<div>Loading…</div>}>
+        <ClientSideSuspense
+          fallback={<FullscreenLoader label="Loading room..." />}
+        >
           {children}
         </ClientSideSuspense>
       </RoomProvider>

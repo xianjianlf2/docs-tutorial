@@ -13,6 +13,7 @@ import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { LoaderIcon } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 
 export const TemplateGallery = () => {
@@ -22,13 +23,14 @@ export const TemplateGallery = () => {
 
   const onTemplateClick = (title: string, initialContent: string) => {
     setIsCreating(true);
+    toast.loading("正在创建文档...", { id: "create-document" });
     createDocument({ title, initialContent })
       .then((documentId) => {
-        toast.success("Document created successfully");
+        toast.success("文档创建成功", { id: "create-document" });
         router.push(`/documents/${documentId}`);
       })
       .catch((error) => {
-        toast.error("Failed to create document");
+        toast.error("文档创建失败", { id: "create-document" });
         console.error("Error creating document:", error);
       })
       .finally(() => {
@@ -64,8 +66,14 @@ export const TemplateGallery = () => {
                       backgroundPosition: "center",
                       backgroundRepeat: "no-repeat",
                     }}
-                    className="size-full hover:border-blue-500 rounded-sm border hover:bg-blue-50 transition flex flex-col items-center justify-center gap-y-4 bg-white"
-                  ></button>
+                    className="size-full hover:border-blue-500 rounded-sm border hover:bg-blue-50 transition flex flex-col items-center justify-center gap-y-4 bg-white relative"
+                  >
+                    {isCreating && (
+                      <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-sm">
+                        <LoaderIcon className="size-6 animate-spin text-[#1a73e8]" />
+                      </div>
+                    )}
+                  </button>
                   <p className="text-sm font-medium truncate">
                     {template.label}
                   </p>

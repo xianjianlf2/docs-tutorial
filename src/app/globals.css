@@ -85,6 +85,18 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* 全局隐藏滚动条 */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
+  }
 }
 .tiptap {
   /* Link styles */

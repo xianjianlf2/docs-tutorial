@@ -2,8 +2,9 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Building2Icon, CircleUserIcon } from "lucide-react";
+import { Building2Icon, CircleUserIcon, LoaderIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { SiGoogledocs } from "react-icons/si";
 import { Doc } from "../../../convex/_generated/dataModel";
 import { DocumentMenu } from "./document-menu";
@@ -14,6 +15,7 @@ interface DocumentRowProps {
 
 export const DocumentRow = ({ document }: DocumentRowProps) => {
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const onNewTabClick = (id: string) => {
     window.open(`/documents/${id}`, "_blank");
@@ -24,15 +26,21 @@ export const DocumentRow = ({ document }: DocumentRowProps) => {
     if ((e.target as HTMLElement).closest('[role="menuitem"], button')) {
       return;
     }
+    setIsNavigating(true);
     router.push(`/documents/${document._id}`);
   };
 
   return (
     <TableRow 
-      className="cursor-pointer border-none hover:bg-[#f1f3f4] transition-colors" 
+      className="cursor-pointer border-none hover:bg-[#f1f3f4] transition-colors relative" 
       key={document._id}
       onClick={handleRowClick}
     >
+      {isNavigating && (
+        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10">
+          <LoaderIcon className="size-5 animate-spin text-[#1a73e8]" />
+        </div>
+      )}
       <TableCell className="w-[50px] py-3 px-4">
         <SiGoogledocs className="size-6 fill-[#1a73e8]" />
       </TableCell>

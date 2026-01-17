@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -26,8 +27,51 @@ export const DocumentsTable = ({
   return (
     <div className="max-w-screen-xl mx-auto px-4 md:px-16 py-6 flex flex-col gap-5">
       {status === "LoadingFirstPage" ? (
-        <div className="flex justify-center items-center h-24">
-          <LoaderIcon className="size-6 animate-spin text-muted-foreground" />
+        <div className="space-y-4">
+          <div className="flex items-center justify-center py-8">
+            <div className="flex flex-col items-center gap-3">
+              <LoaderIcon className="size-8 animate-spin text-blue-600" />
+              <p className="text-sm text-muted-foreground">Loading documents...</p>
+            </div>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-none">
+                <TableHead className="w-[50px] h-10 px-4">&nbsp;</TableHead>
+                <TableHead className="h-10 px-4">
+                  <Skeleton className="h-3 w-12" />
+                </TableHead>
+                <TableHead className="hidden md:table-cell h-10 px-4">
+                  <Skeleton className="h-3 w-16" />
+                </TableHead>
+                <TableHead className="hidden md:table-cell h-10 px-4">
+                  <Skeleton className="h-3 w-20" />
+                </TableHead>
+                <TableHead className="h-10 px-4">&nbsp;</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index} className="hover:bg-transparent border-b">
+                  <TableCell className="px-4 py-3">
+                    <Skeleton className="h-6 w-6 rounded" />
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
+                    <Skeleton className="h-5 w-[200px] md:w-[300px]" />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell px-4 py-3">
+                    <Skeleton className="h-5 w-24" />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell px-4 py-3">
+                    <Skeleton className="h-5 w-32" />
+                  </TableCell>
+                  <TableCell className="px-4 py-3">
+                    <Skeleton className="h-6 w-6 rounded" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <Table>
