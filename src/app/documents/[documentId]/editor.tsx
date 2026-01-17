@@ -1,7 +1,9 @@
 "use client";
+import { DEFAULT_MARGIN } from "@/constants/editor";
 import { FontSizeExtension } from "@/extensions/font-size";
 import { LineHeightExtension } from "@/extensions/line-height";
 import { useEditorStore } from "@/store/use-editor-store";
+import { useStorage } from "@liveblocks/react";
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import { Editor as TiptapEditor } from "@tiptap/core";
 import { Color } from "@tiptap/extension-color";
@@ -19,49 +21,21 @@ import { TextStyle } from "@tiptap/extension-text-style";
 import { Underline } from "@tiptap/extension-underline";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import ImageResize from "tiptap-extension-resize-image";
 import { Threads } from "./threads";
 import Ruler from "./toolbar/Ruler";
 
 const Editor = () => {
+  // 从 Liveblocks storage 读取边距，提供默认值
+  const leftMargin = useStorage((root) => root.leftMargin) ?? DEFAULT_MARGIN;
+  const rightMargin = useStorage((root) => root.rightMargin) ?? DEFAULT_MARGIN;
   const { setEditor } = useEditorStore();
   const liveblocks = useLiveblocksExtension();
 
-  // 使用 useCallback 优化回调函数
-  const handleEditorUpdate = useCallback(
-    (editor: TiptapEditor) => {
-      setEditor(editor);
-    },
-    [setEditor]
-  );
-
-  const editor = useEditor({
-    onCreate({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onDestroy() {
-      setEditor(null);
-    },
-    onUpdate({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onSelectionUpdate({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onTransaction({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onFocus({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onBlur({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    onContentError({ editor }) {
-      handleEditorUpdate(editor);
-    },
-    extensions: [
+  // 使用 useMemo 缓存扩展配置，避免不必要的重新创建
+  const extensions = useMemo(
+    () => [
       StarterKit.configure({
         undoRedo: false,
       }),
@@ -111,15 +85,58 @@ const Editor = () => {
         defaultLineHeight: "normal",
       }),
     ],
-    content: "",
-    editorProps: {
+    [liveblocks]
+  );
+
+  // 使用 useMemo 缓存编辑器属性，只在边距变化时更新
+  const editorProps = useMemo(
+    () => ({
       attributes: {
-        style: "padding-left: 56px;padding-right:56px;",
+        style: `padding-left: ${leftMargin}px; padding-right: ${rightMargin}px;`,
         class:
           "focus:outline-none print:border-0 bg-white border-[#c7c7c7] border flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pb-10 cursor-text",
       },
+    }),
+    [leftMargin, rightMargin]
+  );
+
+  // 使用 useCallback 优化回调函数
+  const handleEditorUpdate = useCallback(
+    (editor: TiptapEditor) => {
+      setEditor(editor);
     },
-    // 使用最新 API 配置
+    [setEditor]
+  );
+
+  const editor = useEditor({
+    onCreate({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onDestroy() {
+      setEditor(null);
+    },
+    onUpdate({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onSelectionUpdate({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onTransaction({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onFocus({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onBlur({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    onContentError({ editor }) {
+      handleEditorUpdate(editor);
+    },
+    extensions,
+    content: "",
+    editorProps,
+    // 性能优化配置
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
   });
