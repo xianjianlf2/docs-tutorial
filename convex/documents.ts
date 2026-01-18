@@ -7,15 +7,15 @@ export const create = mutation({
     title: v.optional(v.string()),
     initialContent: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { title, initialContent }) => {
     const user = await ctx.auth.getUserIdentity();
     if (!user) {
       throw new ConvexError("Unauthorized");
     }
     const organizationId = user.organization_id as string | undefined;
     return await ctx.db.insert("documents", {
-      title: args.title ?? "Untitled Document",
-      initialContent: args.initialContent,
+      title: title ?? "Untitled Document",
+      initialContent: initialContent,
       ownerId: user.subject,
       organizationId: organizationId,
     });
@@ -125,6 +125,9 @@ export const getById = query({
   handler: async (ctx, { id }) => {
     const document = await ctx.db.get(id);
 
+    if (!document) {
+      throw new ConvexError("Document not found");
+    }
     return document;
   },
 });

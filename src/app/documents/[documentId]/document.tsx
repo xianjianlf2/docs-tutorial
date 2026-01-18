@@ -14,10 +14,6 @@ interface DocumentPageProps {
 export const Document = ({ preloadedDocument }: DocumentPageProps) => {
   const document = usePreloadedQuery(preloadedDocument);
 
-  if (!document) {
-    return null;
-  }
-
   return (
     <Room>
       <div className="min-h-screen bg-[#fafbfd]">
@@ -28,7 +24,7 @@ export const Document = ({ preloadedDocument }: DocumentPageProps) => {
           </div>
         </div>
         <div className="pt-[114px] print:pt-0">
-          <Editor />
+          <Editor initialContent={document.initialContent} />
         </div>
       </div>
     </Room>

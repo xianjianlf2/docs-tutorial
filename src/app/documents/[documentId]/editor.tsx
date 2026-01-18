@@ -26,14 +26,19 @@ import ImageResize from "tiptap-extension-resize-image";
 import { Threads } from "./threads";
 import Ruler from "./toolbar/Ruler";
 
-const Editor = () => {
-  // 从 Liveblocks storage 读取边距，提供默认值
+interface EditorProps {
+  initialContent?: string | undefined;
+}
+
+const Editor = ({ initialContent }: EditorProps) => {
   const leftMargin = useStorage((root) => root.leftMargin) ?? DEFAULT_MARGIN;
   const rightMargin = useStorage((root) => root.rightMargin) ?? DEFAULT_MARGIN;
   const { setEditor } = useEditorStore();
-  const liveblocks = useLiveblocksExtension();
+  const liveblocks = useLiveblocksExtension({
+    initialContent: initialContent,
+    offlineSupport_experimental: true,
+  });
 
-  // 使用 useMemo 缓存扩展配置，避免不必要的重新创建
   const extensions = useMemo(
     () => [
       StarterKit.configure({
@@ -88,7 +93,6 @@ const Editor = () => {
     [liveblocks]
   );
 
-  // 使用 useMemo 缓存编辑器属性，只在边距变化时更新
   const editorProps = useMemo(
     () => ({
       attributes: {
@@ -100,7 +104,6 @@ const Editor = () => {
     [leftMargin, rightMargin]
   );
 
-  // 使用 useCallback 优化回调函数
   const handleEditorUpdate = useCallback(
     (editor: TiptapEditor) => {
       setEditor(editor);
@@ -136,7 +139,6 @@ const Editor = () => {
     extensions,
     content: "",
     editorProps,
-    // 性能优化配置
     immediatelyRender: false,
     shouldRerenderOnTransaction: false,
   });

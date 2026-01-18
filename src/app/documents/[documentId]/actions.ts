@@ -1,5 +1,6 @@
 "use server";
 
+import { generateUserColor } from "@/lib/utils";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
@@ -25,12 +26,16 @@ export async function getUsers() {
     orgId ? { organizationId: [orgId] } : {}
   );
 
-  const users = response.data.map((user) => ({
-    id: user.id,
-    name:
-      user.fullName ?? user.primaryEmailAddress?.emailAddress ?? "Anonymous",
-    avatar: user.imageUrl ?? "",
-  }));
+  const users = response.data.map((user) => {
+    const name =
+      user.fullName ?? user.primaryEmailAddress?.emailAddress ?? "Anonymous";
+    return {
+      id: user.id,
+      name,
+      avatar: user.imageUrl ?? "",
+      color: generateUserColor(name),
+    };
+  });
 
   return users;
 }

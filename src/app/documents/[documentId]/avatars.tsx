@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-    ClientSideSuspense,
-    useOthers,
-    useSelf
+  ClientSideSuspense,
+  useOthers,
+  useSelf
 } from "@liveblocks/react/suspense";
 
 const AVATAR_SIZE = 36;
@@ -17,11 +17,13 @@ export const Avatars = () => {
       id: currentUser.id,
       name: currentUser.info.name,
       avatar: currentUser.info.avatar,
+      color: currentUser.info.color,
     },
     ...others.map((other) => ({
       id: other.id,
       name: other.info.name,
       avatar: other.info.avatar,
+      color: other.info.color,
     })),
   ];
 
@@ -33,7 +35,7 @@ export const Avatars = () => {
 };
 
 type AvatarStackProps = {
-  users: Array<{ id: string; name: string; avatar: string }>;
+  users: Array<{ id: string; name: string; avatar: string; color: string }>;
 };
 
 const AvatarStack = ({ users }: AvatarStackProps) => {

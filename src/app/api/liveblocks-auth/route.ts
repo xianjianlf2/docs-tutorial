@@ -1,10 +1,10 @@
+import { generateUserColor } from "@/lib/utils";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Liveblocks } from "@liveblocks/node";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 
-// Environment variable validation
 function getEnvVar(name: string): string {
   const value = process.env[name];
   if (!value) {
@@ -24,9 +24,6 @@ interface DocumentPermission {
   isInSameOrganization: boolean;
 }
 
-/**
- * Check user permissions for the document
- */
 function checkDocumentPermission(
   document: { ownerId: string; organizationId?: string },
   userId: string,
@@ -44,7 +41,6 @@ function checkDocumentPermission(
 
 export async function POST(request: Request) {
   try {
-    // 1. Verify user authentication
     const authResult = await auth();
     if (!authResult?.sessionClaims) {
       return new Response("Unauthorized", { status: 401 });
@@ -55,7 +51,6 @@ export async function POST(request: Request) {
       return new Response("Unauthorized", { status: 401 });
     }
 
-    // 2. Get roomId from URL query parameters
     const url = new URL(request.url);
     const roomId = url.searchParams.get("roomId");
 
@@ -65,8 +60,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // 3. Get authentication token and query document
-    // Use Convex JWT template to generate a token that meets Convex authentication requirements
     const token = await authResult.getToken({ template: "convex" });
     if (!token) {
       return new Response("Unauthorized", { status: 401 });
@@ -87,7 +80,6 @@ export async function POST(request: Request) {
       return new Response("Document not found", { status: 404 });
     }
 
-    // 4. Permission check (keep consistent with logic in documents.ts)
     const organizationId = authResult.sessionClaims.org_id as
       | string
       | undefined;
@@ -101,24 +93,23 @@ export async function POST(request: Request) {
       return new Response("Unauthorized", { status: 403 });
     }
 
-    // 5. Create Liveblocks session
+    const name =
+      user.fullName ?? user.primaryEmailAddress?.emailAddress ?? "Anonymous";
+    const color = generateUserColor(name);
+
     const session = liveblocks.prepareSession(user.id, {
       userInfo: {
-        name:
-          user.fullName ??
-          user.primaryEmailAddress?.emailAddress ??
-          "Anonymous",
+        name,
         avatar: user.imageUrl ?? "",
+        color,
       },
     });
 
     session.allow(roomId, session.FULL_ACCESS);
 
-    // 6. Authorize and return response
     const { body: responseBody, status } = await session.authorize();
     return new Response(responseBody, { status });
   } catch (error) {
-    // Handle known business logic errors
     if (error instanceof Error && error.message.includes("required")) {
       return new Response(error.message, { status: 400 });
     }
