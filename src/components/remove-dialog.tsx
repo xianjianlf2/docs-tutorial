@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useMutation } from "convex/react";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { api } from "../../convex/_generated/api";
@@ -24,6 +25,8 @@ interface RemoveDialogProps {
 export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
   const removeDocument = useMutation(api.documents.removeById);
   const [isRemoving, setIsRemoving] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
@@ -47,11 +50,13 @@ export const RemoveDialog = ({ documentId, children }: RemoveDialogProps) => {
               removeDocument({ id: documentId })
                 .then(() => {
                   toast.success("Document deleted successfully");
+                  // 如果在文档页面，删除后跳转到首页；如果在首页，则不需要跳转
+                  if (pathname?.startsWith("/documents/")) {
+                    router.push("/");
+                  }
                 })
                 .catch(() => {
                   toast.error("Failed to delete document");
-                })
-                .finally(() => {
                   setIsRemoving(false);
                 });
             }}

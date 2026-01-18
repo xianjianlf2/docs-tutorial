@@ -1,29 +1,28 @@
-import Editor from "./editor";
-import Navbar from "./navbar";
-import { Room } from "./room";
-import Toolbar from "./toolbar";
-
+import { auth } from "@clerk/nextjs/server";
+import { preloadQuery } from "convex/nextjs";
+import { api } from "../../../../convex/_generated/api";
+import { Id } from "../../../../convex/_generated/dataModel";
+import { Document } from "./document";
 interface DocumentsIdPageProps {
-  params: Promise<{ documentId: string }>;
+  params: Promise<{ documentId: Id<"documents"> }>;
 }
 
 const DocumentsIdPage = async ({ params }: DocumentsIdPageProps) => {
-  await params; // params 将用于未来的文档加载功能
-  return (
-    <Room>
-      <div className="min-h-screen bg-[#fafbfd]">
-        <div className="sticky top-0 z-50 bg-[#fafbfd] pt-2">
-          <div className="flex flex-col px-4 gap-y-2 fixed top-0 left-0 right-0 z-10 bg-[#fafbfd] print:hidden">
-            <Navbar />
-            <Toolbar />
-          </div>
-        </div>
-        <div className="pt-[114px] print:pt-0">
-          <Editor />
-        </div>
-      </div>
-    </Room>
+  const { documentId } = await params;
+
+  const { getToken } = await auth();
+  const token = (await getToken({ template: "convex" })) ?? undefined;
+  if (!token) {
+    throw new Error("Unauthorized");
+  }
+  const preloadedDocument = await preloadQuery(
+    api.documents.getById,
+    {
+      id: documentId,
+    },
+    { token }
   );
+  return <Document preloadedDocument={preloadedDocument} />;
 };
 
 export default DocumentsIdPage;

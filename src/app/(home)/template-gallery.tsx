@@ -10,10 +10,10 @@ import {
 import { templates } from "@/constants/templates";
 import { cn } from "@/lib/utils";
 import { useMutation } from "convex/react";
+import { LoaderIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import { LoaderIcon } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 
 export const TemplateGallery = () => {
@@ -23,15 +23,14 @@ export const TemplateGallery = () => {
 
   const onTemplateClick = (title: string, initialContent: string) => {
     setIsCreating(true);
-    toast.loading("正在创建文档...", { id: "create-document" });
+    toast.loading("Creating document...", { id: "create-document" });
     createDocument({ title, initialContent })
       .then((documentId) => {
-        toast.success("文档创建成功", { id: "create-document" });
+        toast.success("Document created successfully", { id: "create-document" });
         router.push(`/documents/${documentId}`);
       })
-      .catch((error) => {
-        toast.error("文档创建失败", { id: "create-document" });
-        console.error("Error creating document:", error);
+      .catch(() => {
+        toast.error("Failed to create document", { id: "create-document" });
       })
       .finally(() => {
         setIsCreating(false);

@@ -39,17 +39,17 @@ export const DocumentMenu = ({
             onClick={(e) => e.stopPropagation()}
             onSelect={(e) => e.preventDefault()}
           >
-            <FileEditIcon className="size-4  mr-2" />
+            <FileEditIcon className="size-4 mr-2" />
             <span>Rename</span>
           </DropdownMenuItem>
         </RenameDialog>
         <RemoveDialog documentId={documentId}>
           <DropdownMenuItem
-            className="cursor-pointer"
+            className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
             onClick={(e) => e.stopPropagation()}
             onSelect={(e) => e.preventDefault()}
           >
-            <TrashIcon className="size-4  mr-2" />
+            <TrashIcon className="size-4 mr-2" />
             <span>Remove</span>
           </DropdownMenuItem>
         </RemoveDialog>

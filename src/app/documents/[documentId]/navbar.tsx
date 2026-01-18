@@ -1,43 +1,50 @@
 "use client";
+import { RemoveDialog } from "@/components/remove-dialog";
+import { RenameDialog } from "@/components/rename-dialog";
 import {
-    Menubar,
-    MenubarContent,
-    MenubarItem,
-    MenubarMenu,
-    MenubarSeparator,
-    MenubarShortcut,
-    MenubarSub,
-    MenubarSubContent,
-    MenubarSubTrigger,
-    MenubarTrigger,
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
 } from "@/components/ui/menubar";
 import { TablePicker } from "@/components/ui/table-picker";
 import { useEditorStore } from "@/store/use-editor-store";
 import { OrganizationSwitcher, UserButton } from "@clerk/clerk-react";
+import { useMutation } from "convex/react";
 import {
-    Bold,
-    FileCode,
-    FileEdit,
-    FileIcon,
-    FileJson,
-    FileText,
-    FileType,
-    FolderOpen,
-    Italic,
-    Printer,
-    Redo,
-    RemoveFormatting,
-    Save,
-    SaveAll,
-    Strikethrough,
-    Table,
-    Trash2,
-    Underline,
-    Undo,
+  Bold,
+  FileCode,
+  FileEdit,
+  FileIcon,
+  FileJson,
+  FileText,
+  FileType,
+  FolderOpen,
+  Italic,
+  Printer,
+  Redo,
+  RemoveFormatting,
+  Save,
+  SaveAll,
+  Strikethrough,
+  Table,
+  Trash2,
+  Underline,
+  Undo,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect } from "react";
+import { toast } from "sonner";
+import { api } from "../../../../convex/_generated/api";
+import { Doc } from "../../../../convex/_generated/dataModel";
 import { Avatars } from "./avatars";
 import { DocumentInput } from "./document-input";
 import { Inbox } from "./inbox";
@@ -56,15 +63,13 @@ type NavbarProps = {
   onUnderline?: () => void;
   onStrikethrough?: () => void;
   onClearFormat?: () => void;
+  data: Doc<"documents">;
 };
 
 export default function Navbar({
-  onNewDocument,
   onOpenDocument,
   onSaveDocument,
   onSaveAsDocument,
-  onRenameDocument,
-  onRemoveDocument,
   onPrintDocument,
   onInsertTable,
   onBold,
@@ -72,8 +77,25 @@ export default function Navbar({
   onUnderline,
   onStrikethrough,
   onClearFormat,
+  data,
 }: NavbarProps) {
   const { editor } = useEditorStore();
+  const mutation = useMutation(api.documents.create);
+  const router = useRouter();
+
+  const onNewDocument = useCallback(async () => {
+    try {
+      const documentId = await mutation({
+        title: "New Document",
+        initialContent: "",
+      });
+      toast.success("Document created successfully");
+      router.push(`/documents/${documentId}`);
+    } catch (error) {
+      toast.error("Failed to create document");
+      console.error("Failed to create document:", error);
+    }
+  }, [mutation, router]);
 
   // Helper function to download files
   const downloadFile = useCallback(
@@ -99,14 +121,6 @@ export default function Navbar({
   const handleOpen = useCallback(() => {
     onOpenDocument?.();
   }, [onOpenDocument]);
-
-  const handleRename = useCallback(() => {
-    onRenameDocument?.();
-  }, [onRenameDocument]);
-
-  const handleRemove = useCallback(() => {
-    onRemoveDocument?.();
-  }, [onRemoveDocument]);
 
   const handlePrint = useCallback(() => {
     if (onPrintDocument) {
@@ -138,15 +152,15 @@ export default function Navbar({
         switch (format) {
           case "json":
             const json = JSON.stringify(editor.getJSON(), null, 2);
-            downloadFile(json, "document.json", "application/json");
+            downloadFile(json, `${data.title}.json`, "application/json");
             break;
           case "text":
             const text = editor.getText();
-            downloadFile(text, "document.txt", "text/plain");
+            downloadFile(text, `${data.title}.txt`, "text/plain");
             break;
           case "html":
             const html = editor.getHTML();
-            downloadFile(html, "document.html", "text/html");
+            downloadFile(html, `${data.title}.html`, "text/html");
             break;
           case "pdf":
             window.print();
@@ -156,7 +170,7 @@ export default function Navbar({
         console.error("Export failed:", error);
       }
     },
-    [editor, onSaveAsDocument, downloadFile]
+    [editor, onSaveAsDocument, downloadFile, data.title]
   );
 
   // Edit operations
@@ -279,15 +293,15 @@ export default function Navbar({
       aria-label="Document navigation"
     >
       <div className="flex gap-3 items-center min-w-0 flex-1">
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           aria-label="Go to home"
           className="flex-shrink-0 transition-opacity hover:opacity-80"
         >
           <Image src="/logo.svg" alt="logo" width={40} height={43} priority />
         </Link>
         <div className="flex flex-col min-w-0 flex-1">
-          <DocumentInput />
+          <DocumentInput title={data.title} id={data._id} />
           <div className="flex items-center mt-0.5">
             <Menubar
               className="border-none bg-transparent shadow-none h-auto p-0"
@@ -298,18 +312,27 @@ export default function Navbar({
                   File
                 </MenubarTrigger>
                 <MenubarContent className="print:hidden">
-                  <MenubarItem onClick={handleNew} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleNew}
+                    className="gap-2 cursor-pointer"
+                  >
                     <FileIcon className="size-4" />
                     <span>New Document</span>
                     <MenubarShortcut>Ctrl+N</MenubarShortcut>
                   </MenubarItem>
-                  <MenubarItem onClick={handleOpen} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleOpen}
+                    className="gap-2 cursor-pointer"
+                  >
                     <FolderOpen className="size-4" />
                     <span>Open</span>
                     <MenubarShortcut>Ctrl+O</MenubarShortcut>
                   </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem onClick={handleSave} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleSave}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Save className="size-4" />
                     <span>Save</span>
                     <MenubarShortcut>Ctrl+S</MenubarShortcut>
@@ -350,21 +373,36 @@ export default function Navbar({
                       </MenubarItem>
                     </MenubarSubContent>
                   </MenubarSub>
-                  <MenubarItem onClick={handleRename} className="gap-2 cursor-pointer">
-                    <FileEdit className="size-4" />
-                    <span>Rename</span>
-                  </MenubarItem>
+                  <RenameDialog documentId={data._id} title={data.title}>
+                    <MenubarItem
+                      onClick={(e) => e.stopPropagation()}
+                      onSelect={(e) => e.preventDefault()}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <FileEdit className="size-4" />
+                      <span>Rename</span>
+                    </MenubarItem>
+                  </RenameDialog>
                   <MenubarSeparator />
-                  <MenubarItem onClick={handlePrint} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handlePrint}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Printer className="size-4" />
                     <span>Print</span>
                     <MenubarShortcut>Ctrl+P</MenubarShortcut>
                   </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem onClick={handleRemove} className="gap-2 cursor-pointer text-destructive focus:text-destructive">
-                    <Trash2 className="size-4" />
-                    <span>Remove</span>
-                  </MenubarItem>
+                  <RemoveDialog documentId={data._id}>
+                    <MenubarItem
+                      onClick={(e) => e.stopPropagation()}
+                      onSelect={(e) => e.preventDefault()}
+                      className="gap-2 cursor-pointer text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="size-4" />
+                      <span>Remove</span>
+                    </MenubarItem>
+                  </RemoveDialog>
                 </MenubarContent>
               </MenubarMenu>
               <MenubarMenu>
@@ -413,28 +451,43 @@ export default function Navbar({
                   Format
                 </MenubarTrigger>
                 <MenubarContent className="print:hidden">
-                  <MenubarItem onClick={handleBold} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleBold}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Bold className="size-4" />
                     <span>Bold</span>
                     <MenubarShortcut>Ctrl+B</MenubarShortcut>
                   </MenubarItem>
-                  <MenubarItem onClick={handleItalic} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleItalic}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Italic className="size-4" />
                     <span>Italic</span>
                     <MenubarShortcut>Ctrl+I</MenubarShortcut>
                   </MenubarItem>
-                  <MenubarItem onClick={handleUnderline} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleUnderline}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Underline className="size-4" />
                     <span>Underline</span>
                     <MenubarShortcut>Ctrl+U</MenubarShortcut>
                   </MenubarItem>
-                  <MenubarItem onClick={handleStrikethrough} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleStrikethrough}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Strikethrough className="size-4" />
                     <span>Strikethrough</span>
                     <MenubarShortcut>Ctrl+Shift+X</MenubarShortcut>
                   </MenubarItem>
                   <MenubarSeparator />
-                  <MenubarItem onClick={handleClearFormat} className="gap-2 cursor-pointer">
+                  <MenubarItem
+                    onClick={handleClearFormat}
+                    className="gap-2 cursor-pointer"
+                  >
                     <RemoveFormatting className="size-4" />
                     <span>Clear Format</span>
                   </MenubarItem>
